@@ -81,7 +81,11 @@ export default function EmployeeForm() {
       errors.officeEmail = 'Office email must use the @apptware.com domain';
     }
 
-    // Add other validations as needed
+    // Validate phone number
+    if (!/^\d{10}$/.test(data.contactNumber)) {
+      errors.contactNumber = 'Contact number must be exactly 10 digits';
+    }
+
     if (Object.keys(errors).length > 0) {
       throw new Error(JSON.stringify(errors));
     }

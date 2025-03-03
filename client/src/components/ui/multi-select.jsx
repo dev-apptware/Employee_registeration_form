@@ -41,7 +41,7 @@ export function MultiSelect({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          <div className="flex flex-wrap gap-1 max-h-[100px] overflow-y-auto">
+          <div className="flex-1 h-[2.5rem] overflow-y-auto scrollbar-thin">
             {selectedValues.length === 0 ? (
               <span className="text-muted-foreground">{placeholder}</span>
             ) : (
@@ -50,7 +50,7 @@ export function MultiSelect({
                   <Badge 
                     key={value} 
                     variant="secondary"
-                    className="mr-1 mb-1"
+                    className="mr-1 mb-1 text-sm"
                   >
                     {value}
                   </Badge>
@@ -63,7 +63,7 @@ export function MultiSelect({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput placeholder="Search..." className="h-9" />
           <CommandEmpty>No item found.</CommandEmpty>
           <CommandGroup className="max-h-[200px] overflow-y-auto">
             {options.map((option) => (

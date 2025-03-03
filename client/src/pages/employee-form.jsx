@@ -151,13 +151,18 @@ export default function EmployeeForm() {
     const fetchEmployees = async () => {
       try {
         const employees = await getAllEmployees();
-        setExistingEmployees(employees);
+        setExistingEmployees(employees || []);
       } catch (error) {
         console.error("Error fetching employees:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load existing employees. Manager selection may be unavailable."
+        });
       }
     };
     fetchEmployees();
-  }, []);
+  }, [toast]);
 
   const validateForm = (data) => {
     const errors = {};
@@ -178,8 +183,21 @@ export default function EmployeeForm() {
   const onSubmit = async (data) => {
     try {
       validateForm(data);
-      await submitEmployeeData(data);
-      setLocation("/thank-you");
+      const result = await submitEmployeeData(data);
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: result.message,
+        });
+        setLocation("/thank-you");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.message || "Failed to submit form",
+        });
+      }
     } catch (error) {
       let errorMessage = error.message;
       try {
@@ -525,7 +543,7 @@ export default function EmployeeForm() {
                             <SelectContent>
                               {existingEmployees.map((employee) => (
                                 <SelectItem key={employee.id} value={employee.id.toString()}>
-                                  {employee.name} (ID: {employee.id})
+                                  {employee.name} - {employee.designation} ({employee.department})
                                 </SelectItem>
                               ))}
                             </SelectContent>

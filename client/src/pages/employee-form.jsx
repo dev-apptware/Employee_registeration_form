@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { submitEmployeeData, getAllEmployees } from "@/lib/api";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 
 const SKILLS_OPTIONS = [
   "JAVA",
@@ -52,6 +53,7 @@ export default function EmployeeForm() {
   const { toast } = useToast();
   const [existingEmployees, setExistingEmployees] = useState([]);
   const [manualManagerId, setManualManagerId] = useState(true);
+  const [, setLocation] = useLocation();
 
   const form = useForm({
     defaultValues: {
@@ -61,7 +63,6 @@ export default function EmployeeForm() {
   });
 
   useEffect(() => {
-    // Load existing employees for manager selection
     const fetchEmployees = async () => {
       try {
         const employees = await getAllEmployees();
@@ -76,12 +77,10 @@ export default function EmployeeForm() {
   const validateForm = (data) => {
     const errors = {};
 
-    // Validate office email domain
     if (!data.officeEmail.endsWith('@apptware.com')) {
       errors.officeEmail = 'Office email must use the @apptware.com domain';
     }
 
-    // Validate phone number
     if (!/^\d{10}$/.test(data.contactNumber)) {
       errors.contactNumber = 'Contact number must be exactly 10 digits';
     }
@@ -95,14 +94,9 @@ export default function EmployeeForm() {
     try {
       validateForm(data);
       await submitEmployeeData(data);
-      toast({
-        title: "Success",
-        description: "Employee registration completed successfully",
-      });
-      form.reset();
-      // Refresh the employees list after submission
-      const employees = await getAllEmployees();
-      setExistingEmployees(employees);
+
+      setLocation("/thank-you");
+
     } catch (error) {
       let errorMessage = error.message;
       try {

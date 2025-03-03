@@ -13,11 +13,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { submitEmployeeData } from "@/lib/api";
+import { submitEmployeeData, getAllEmployees } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 const SKILLS_OPTIONS = [
   "JAVA",
@@ -40,12 +48,29 @@ const DEPARTMENTS = [
 
 export default function EmployeeForm() {
   const { toast } = useToast();
+  const [existingEmployees, setExistingEmployees] = useState([]);
+  const [manualManagerId, setManualManagerId] = useState(true);
+
   const form = useForm({
     defaultValues: {
       primarySkills: [],
       secondarySkills: [],
     },
   });
+
+  useEffect(() => {
+    // Load existing employees for manager selection
+    const fetchEmployees = async () => {
+      try {
+        const employees = await getAllEmployees();
+        setExistingEmployees(employees);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+        // Handle error appropriately, e.g., display a toast message
+      }
+    };
+    fetchEmployees();
+  }, []);
 
   const onSubmit = async (data) => {
     try {
@@ -55,6 +80,17 @@ export default function EmployeeForm() {
         description: "Employee registration completed successfully",
       });
       form.reset();
+      // Refresh the employees list after submission
+      const fetchEmployees = async () => {
+        try {
+          const employees = await getAllEmployees();
+          setExistingEmployees(employees);
+        } catch (error) {
+          console.error("Error fetching employees:", error);
+          // Handle error appropriately, e.g., display a toast message
+        }
+      };
+      fetchEmployees();
     } catch (error) {
       toast({
         variant: "destructive",
@@ -323,22 +359,74 @@ export default function EmployeeForm() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="reportingManager"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Reporting Manager ID</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                {/* New Manager Selection Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      type="button"
+                      variant={manualManagerId ? "default" : "outline"}
+                      onClick={() => setManualManagerId(true)}
+                    >
+                      Enter Manager ID
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={!manualManagerId ? "default" : "outline"}
+                      onClick={() => setManualManagerId(false)}
+                    >
+                      Select Manager
+                    </Button>
+                  </div>
+
+                  {manualManagerId ? (
+                    <FormField
+                      control={form.control}
+                      name="reportingManager"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reporting Manager ID</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                              placeholder="Enter manager ID"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name="reportingManager"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Reporting Manager</FormLabel>
+                          <Select
+                            onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                            value={field.value?.toString()}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a manager" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {existingEmployees.map((employee) => (
+                                <SelectItem key={employee.id} value={employee.id.toString()}>
+                                  {employee.name} (ID: {employee.id})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   )}
-                />
+                </div>
               </div>
 
               <div className="flex justify-end">

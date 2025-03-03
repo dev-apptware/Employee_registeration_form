@@ -62,6 +62,9 @@ export default function EmployeeForm() {
     },
   });
 
+  const primarySkills = form.watch('primarySkills') || [];
+  const secondarySkills = form.watch('secondarySkills') || [];
+
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -94,9 +97,7 @@ export default function EmployeeForm() {
     try {
       validateForm(data);
       await submitEmployeeData(data);
-
       setLocation("/thank-you");
-
     } catch (error) {
       let errorMessage = error.message;
       try {
@@ -317,7 +318,7 @@ export default function EmployeeForm() {
                       <FormLabel>Primary Skills</FormLabel>
                       <FormControl>
                         <MultiSelect
-                          options={SKILLS_OPTIONS}
+                          options={SKILLS_OPTIONS.filter(skill => !secondarySkills.includes(skill))}
                           selectedValues={field.value}
                           onChange={field.onChange}
                           placeholder="Select primary skills"
@@ -336,7 +337,7 @@ export default function EmployeeForm() {
                       <FormLabel>Secondary Skills</FormLabel>
                       <FormControl>
                         <MultiSelect
-                          options={SKILLS_OPTIONS}
+                          options={SKILLS_OPTIONS.filter(skill => !primarySkills.includes(skill))}
                           selectedValues={field.value}
                           onChange={field.onChange}
                           placeholder="Select secondary skills"

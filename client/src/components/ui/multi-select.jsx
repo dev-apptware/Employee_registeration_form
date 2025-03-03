@@ -41,17 +41,23 @@ export function MultiSelect({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {selectedValues.length === 0 ? (
-            <span className="text-muted-foreground">{placeholder}</span>
-          ) : (
-            <div className="flex flex-wrap gap-1">
-              {selectedValues.map((value) => (
-                <Badge key={value} variant="secondary">
-                  {value}
-                </Badge>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-1 max-h-[100px] overflow-y-auto">
+            {selectedValues.length === 0 ? (
+              <span className="text-muted-foreground">{placeholder}</span>
+            ) : (
+              <div className="flex flex-wrap gap-1">
+                {selectedValues.map((value) => (
+                  <Badge 
+                    key={value} 
+                    variant="secondary"
+                    className="mr-1 mb-1"
+                  >
+                    {value}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -59,7 +65,7 @@ export function MultiSelect({
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandEmpty>No item found.</CommandEmpty>
-          <CommandGroup>
+          <CommandGroup className="max-h-[200px] overflow-y-auto">
             {options.map((option) => (
               <CommandItem
                 key={option}

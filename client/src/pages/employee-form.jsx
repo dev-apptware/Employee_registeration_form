@@ -39,11 +39,13 @@ const SKILLS_OPTIONS = [
 ];
 
 const DEPARTMENTS = [
-  "TECHNOLOGY",
-  "PRODUCT",
-  "MARKETING",
+  "HR",
   "SALES",
+  "DESIGN",
+  "ACCOUNTS",
+  "MARKETING",
   "OPERATIONS",
+  "TECHNOLOGY",
 ];
 
 export default function EmployeeForm() {
@@ -66,14 +68,28 @@ export default function EmployeeForm() {
         setExistingEmployees(employees);
       } catch (error) {
         console.error("Error fetching employees:", error);
-        // Handle error appropriately, e.g., display a toast message
       }
     };
     fetchEmployees();
   }, []);
 
+  const validateForm = (data) => {
+    const errors = {};
+
+    // Validate office email domain
+    if (!data.officeEmail.endsWith('@apptware.com')) {
+      errors.officeEmail = 'Office email must use the @apptware.com domain';
+    }
+
+    // Add other validations as needed
+    if (Object.keys(errors).length > 0) {
+      throw new Error(JSON.stringify(errors));
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
+      validateForm(data);
       await submitEmployeeData(data);
       toast({
         title: "Success",
@@ -81,21 +97,21 @@ export default function EmployeeForm() {
       });
       form.reset();
       // Refresh the employees list after submission
-      const fetchEmployees = async () => {
-        try {
-          const employees = await getAllEmployees();
-          setExistingEmployees(employees);
-        } catch (error) {
-          console.error("Error fetching employees:", error);
-          // Handle error appropriately, e.g., display a toast message
-        }
-      };
-      fetchEmployees();
+      const employees = await getAllEmployees();
+      setExistingEmployees(employees);
     } catch (error) {
+      let errorMessage = error.message;
+      try {
+        const parsedErrors = JSON.parse(error.message);
+        errorMessage = Object.values(parsedErrors)[0];
+      } catch (e) {
+        // Use the original error message if it's not a validation error
+      }
+
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Submission failed",
+        description: errorMessage,
       });
     }
   };
@@ -149,7 +165,7 @@ export default function EmployeeForm() {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="john@company.com"
+                          placeholder="john@apptware.com"
                           {...field}
                         />
                       </FormControl>
@@ -186,6 +202,7 @@ export default function EmployeeForm() {
                         <Input
                           type="number"
                           {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -286,6 +303,7 @@ export default function EmployeeForm() {
                           type="number"
                           step="0.5"
                           {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -351,15 +369,25 @@ export default function EmployeeForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Department</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Technology" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select department" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DEPARTMENTS.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {/* New Manager Selection Section */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <Button

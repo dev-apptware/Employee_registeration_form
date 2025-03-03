@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -12,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import {
   Select,
   SelectContent,
@@ -21,11 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { SkillSelector, SKILL_CATEGORIES } from "@/components/ui/skill-selector";
 import { submitEmployeeData, getAllEmployees } from "@/lib/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 
 const SKILLS_OPTIONS = [
@@ -131,26 +131,113 @@ const DEPARTMENTS = [
   "TECHNOLOGY",
 ];
 
+// Map departments to skill categories that are relevant
+const DEPARTMENT_TO_SKILL_CATEGORIES = {
+  'TECHNOLOGY': ['TECH'],
+  'DESIGN': ['DESIGN'],
+  'MARKETING': ['MARKETING'],
+  'SALES': ['SALES'],
+  'HR': ['HR'],
+  'ACCOUNTS': ['ACCOUNTS'],
+  'OPERATIONS': ['OPERATIONS']
+};
+
 export default function EmployeeForm() {
   const { toast } = useToast();
   const [existingEmployees, setExistingEmployees] = useState([]);
   const [manualManagerId, setManualManagerId] = useState(true);
   const [, setLocation] = useLocation();
+  const [currentDepartment, setCurrentDepartment] = useState('');
 
   const form = useForm({
     defaultValues: {
       primarySkills: [],
       secondarySkills: [],
     },
+    // Add default validation rules
+    resolver: async (values) => {
+      const errors = {};
+
+      // Validate full name (only letters, spaces, and some special characters)
+      if (values.name && !/^[A-Za-z\s.'\-]+$/.test(values.name)) {
+        errors.name = {
+          type: 'pattern',
+          message: 'Name should contain only letters, spaces, and characters like . or \''
+        };
+      }
+
+      // Validate contact number (exactly 10 digits)
+      if (values.contactNumber && !/^\d{10}$/.test(values.contactNumber)) {
+        errors.contactNumber = {
+          type: 'pattern',
+          message: 'Contact number must be exactly 10 digits'
+        };
+      }
+
+      // Validate employeeId (positive integer)
+      if (values.employeeId && (parseInt(values.employeeId) <= 0 || !Number.isInteger(parseFloat(values.employeeId)))) {
+        errors.employeeId = {
+          type: 'min',
+          message: 'Employee ID must be a positive integer'
+        };
+      }
+
+      // Validate years of experience (positive number)
+      if (values.totalYrExp && parseFloat(values.totalYrExp) < 0) {
+        errors.totalYrExp = {
+          type: 'min',
+          message: 'Years of experience cannot be negative'
+        };
+      }
+
+      // Validate designation (only letters, spaces, and some special characters)
+      if (values.designation && !/^[A-Za-z\s.'\-]+$/.test(values.designation)) {
+        errors.designation = {
+          type: 'pattern',
+          message: 'Designation should contain only letters, spaces, and characters like . or \''
+        };
+      }
+
+      // Validate reporting manager ID if provided
+      if (values.reportingManager && (parseInt(values.reportingManager) <= 0 || !Number.isInteger(parseFloat(values.reportingManager)))) {
+        errors.reportingManager = {
+          type: 'min',
+          message: 'Manager ID must be a positive integer'
+        };
+      }
+
+      return {
+        values,
+        errors
+      };
+    }
   });
 
   const primarySkills = form.watch('primarySkills') || [];
   const secondarySkills = form.watch('secondarySkills') || [];
+  const department = form.watch('department');
+
+  // Update current department when it changes
+  useEffect(() => {
+    if (department) {
+      setCurrentDepartment(department);
+    }
+  }, [department]);
+
+  // Determine relevant skill categories based on department
+  const relevantSkillCategories = useMemo(() => {
+    // If no department is selected yet, show all categories
+    if (!currentDepartment) return Object.keys(SKILL_CATEGORIES);
+
+    // Return categories for the selected department
+    return DEPARTMENT_TO_SKILL_CATEGORIES[currentDepartment] || Object.keys(SKILL_CATEGORIES);
+  }, [currentDepartment]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const employees = await getAllEmployees();
+        console.log('Employees for dropdown:', employees);
         setExistingEmployees(employees || []);
       } catch (error) {
         console.error("Error fetching employees:", error);
@@ -167,12 +254,39 @@ export default function EmployeeForm() {
   const validateForm = (data) => {
     const errors = {};
 
+    // Validate office email domain
     if (!data.officeEmail.endsWith('@apptware.com')) {
       errors.officeEmail = 'Office email must use the @apptware.com domain';
     }
 
+    // Validate contact number format
     if (!/^\d{10}$/.test(data.contactNumber)) {
       errors.contactNumber = 'Contact number must be exactly 10 digits';
+    }
+
+    // Validate name format
+    if (!/^[A-Za-z\s.'\-]+$/.test(data.name)) {
+      errors.name = 'Name should contain only letters, spaces, and characters like . or \'';
+    }
+
+    // Validate employee ID
+    if (parseInt(data.employeeId) <= 0 || !Number.isInteger(parseFloat(data.employeeId))) {
+      errors.employeeId = 'Employee ID must be a positive integer';
+    }
+
+    // Validate years of experience
+    if (parseFloat(data.totalYrExp) < 0) {
+      errors.totalYrExp = 'Years of experience cannot be negative';
+    }
+
+    // Validate designation
+    if (!/^[A-Za-z\s.'\-]+$/.test(data.designation)) {
+      errors.designation = 'Designation should contain only letters, spaces, and characters like . or \'';
+    }
+
+    // Validate reporting manager ID if provided
+    if (data.reportingManager && (parseInt(data.reportingManager) <= 0 || !Number.isInteger(parseFloat(data.reportingManager)))) {
+      errors.reportingManager = 'Manager ID must be a positive integer';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -182,9 +296,11 @@ export default function EmployeeForm() {
 
   const onSubmit = async (data) => {
     try {
+      console.log(data);
+
       validateForm(data);
       const result = await submitEmployeeData(data);
-      
+
       if (result.success) {
         toast({
           title: "Success",
@@ -230,6 +346,13 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="name"
+                  rules={{
+                    required: "Full name is required",
+                    pattern: {
+                      value: /^[A-Za-z\s.'\-]+$/,
+                      message: "Name should contain only letters, spaces, and characters like . or '"
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
@@ -244,11 +367,28 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="contactNumber"
+                  rules={{
+                    required: "Contact number is required",
+                    pattern: {
+                      value: /^\d{10}$/,
+                      message: "Contact number must be exactly 10 digits"
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Contact Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="1234567890" {...field} />
+                        <Input
+                          placeholder="1234567890"
+                          {...field}
+                          maxLength={10}
+                          onKeyPress={(e) => {
+                            // Allow only digits
+                            if (!/\d/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -291,17 +431,46 @@ export default function EmployeeForm() {
                   )}
                 />
 
+
                 <FormField
                   control={form.control}
-                  name="employeeId"
+                  name="dateOfJoining"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Employee ID</FormLabel>
+                      <FormLabel>Date of Joining</FormLabel>
                       <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        <DatePicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabledDate={(date) => date > new Date()}
+                          placeholder="Select date of joining"
+                          className="w-full"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+
+
+
+
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date of Birth</FormLabel>
+                      <FormControl>
+                        <DatePicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabledDate={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          placeholder="Select date of birth"
+                          className="w-full"
                         />
                       </FormControl>
                       <FormMessage />
@@ -311,81 +480,34 @@ export default function EmployeeForm() {
 
                 <FormField
                   control={form.control}
-                  name="dateOfBirth"
+                  name="employeeId"
+                  rules={{
+                    required: "Employee ID is required",
+                    validate: (value) => {
+                      const numValue = parseInt(value);
+                      if (isNaN(numValue) || numValue <= 0 || !Number.isInteger(numValue)) {
+                        return "Employee ID must be a positive integer";
+                      }
+                      return true;
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date of Birth</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
+                      <FormLabel>Employee ID</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          step="1"
+                          {...field}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (value > 0) {
+                              field.onChange(value);
                             }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="dateOfJoining"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Date of Joining</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date > new Date()}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                          }}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -394,15 +516,31 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="totalYrExp"
+                  rules={{
+                    required: "Years of experience is required",
+                    validate: (value) => {
+                      const numValue = parseFloat(value);
+                      if (isNaN(numValue) || numValue < 0) {
+                        return "Years of experience cannot be negative";
+                      }
+                      return true;
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Years of Experience</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
+                          min="0"
                           step="0.5"
                           {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value);
+                            if (value >= 0 || isNaN(value)) {
+                              field.onChange(value);
+                            }
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -410,52 +548,32 @@ export default function EmployeeForm() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="primarySkills"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Primary Skills</FormLabel>
-                      <FormControl>
-                        <MultiSelect
-                          options={SKILLS_OPTIONS.filter(skill => !secondarySkills.includes(skill))}
-                          selectedValues={field.value}
-                          onChange={field.onChange}
-                          placeholder="Select primary skills"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <FormField
-                  control={form.control}
-                  name="secondarySkills"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Secondary Skills</FormLabel>
-                      <FormControl>
-                        <MultiSelect
-                          options={SKILLS_OPTIONS.filter(skill => !primarySkills.includes(skill))}
-                          selectedValues={field.value}
-                          onChange={field.onChange}
-                          placeholder="Select secondary skills"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
                   name="designation"
+                  rules={{
+                    required: "Designation is required",
+                    pattern: {
+                      value: /^[A-Za-z\s.'\-]+$/,
+                      message: "Designation should contain only letters, spaces, and characters like . or '"
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Designation</FormLabel>
                       <FormControl>
-                        <Input placeholder="Senior Developer" {...field} />
+                        <Input
+                          placeholder="Senior Developer"
+                          {...field}
+                          onKeyPress={(e) => {
+                            // Allow only letters, spaces, and specific special characters
+                            if (!/[A-Za-z\s.'\-]/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -487,6 +605,48 @@ export default function EmployeeForm() {
                   )}
                 />
 
+                <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="primarySkills"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormControl>
+                          <SkillSelector
+                            options={SKILLS_OPTIONS}
+                            selectedValues={field.value}
+                            onChange={field.onChange}
+                            label="Primary Skills"
+                            excludeList={secondarySkills}
+                            filterCategories={relevantSkillCategories}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="secondarySkills"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormControl>
+                          <SkillSelector
+                            options={SKILLS_OPTIONS}
+                            selectedValues={field.value}
+                            onChange={field.onChange}
+                            label="Secondary Skills"
+                            excludeList={primarySkills}
+                            filterCategories={relevantSkillCategories}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <Button
@@ -509,14 +669,35 @@ export default function EmployeeForm() {
                     <FormField
                       control={form.control}
                       name="reportingManager"
+                      rules={{
+                        validate: (value) => {
+                          if (value) {
+                            const numValue = parseInt(value);
+                            if (isNaN(numValue) || numValue <= 0 || !Number.isInteger(numValue)) {
+                              return "Manager ID must be a positive integer";
+                            }
+                          }
+                          return true;
+                        }
+                      }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Reporting Manager ID</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
+                              min="1"
+                              step="1"
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value, 10);
+                                if (value > 0 || isNaN(value)) {
+                                  field.onChange(value);
+                                } else {
+                                  // If negative or zero, set to empty or 1
+                                  field.onChange("");
+                                }
+                              }}
                               placeholder="Enter manager ID"
                             />
                           </FormControl>
@@ -542,7 +723,7 @@ export default function EmployeeForm() {
                             </FormControl>
                             <SelectContent>
                               {existingEmployees.map((employee) => (
-                                <SelectItem key={employee.id} value={employee.id.toString()}>
+                                <SelectItem key={employee.employeeId} value={employee.employeeId.toString()}>
                                   {employee.name} - {employee.designation} ({employee.department})
                                 </SelectItem>
                               ))}

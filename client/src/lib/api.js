@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-// Get the external API URL from environment variables or use the default
-const EXTERNAL_API_URL = import.meta.env.VITE_API_URL || 'https://hrms-au5y.onrender.com/employee/add';
-
-// JSON Server URL (local API)
-const JSON_SERVER_URL = import.meta.env.VITE_JSON_SERVER_URL || 'http://localhost:3001';
+// Get the external API base URL from environment variables or use the default
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://hrms-au5y.onrender.com/employee';
+const API_ADD_URL = `${API_BASE_URL}/add`;
+const API_LIST_URL = `${API_BASE_URL}/listEmployees`;
 
 // Format date to DD-MM-YYYY format required by the API
 const formatDateForAPI = (date) => {
@@ -17,20 +16,23 @@ const formatDateForAPI = (date) => {
 };
 
 /**
- * Get all employees from the JSON Server
+ * Get all employees from the API
  */
 export const getAllEmployees = async () => {
   try {
-    const response = await axios.get(`${JSON_SERVER_URL}/employees`);
-    return response.data || [];
+    const response = await axios.get(API_LIST_URL);
+    // Check the structure of the response and extract the employee array
+    const employees = response.data?.employees || response.data || [];
+    console.log('Fetched employees from API:', employees);
+    return employees;
   } catch (error) {
-    console.error('Error fetching employees:', error);
+    console.error('Error fetching employees from API:', error);
     return [];
   }
 };
 
 /**
- * Submit employee data to both the JSON Server and the external API
+ * Submit employee data to the external API
  */
 export const submitEmployeeData = async (data) => {
   try {
@@ -51,54 +53,23 @@ export const submitEmployeeData = async (data) => {
       reportingManager: data.reportingManager ? Number(data.reportingManager) : null
     };
     
-    console.log('Saving to JSON Server:', formattedData);
+    console.log('Sending data to API:', formattedData);
     
-    // First save to JSON Server
     try {
-      const jsonServerResponse = await axios.post(`${JSON_SERVER_URL}/employees`, formattedData);
-      console.log('JSON Server Response:', jsonServerResponse.data);
+      const response = await axios.post(API_ADD_URL, formattedData);
+      console.log('API Response:', response.data);
       
-      // Then try to send to the external API
-      try {
-        const externalApiResponse = await axios.post(EXTERNAL_API_URL, formattedData);
-        console.log('External API Response:', externalApiResponse.data);
-        
-        return { 
-          success: true, 
-          message: 'Employee registered successfully',
-          localData: jsonServerResponse.data,
-          apiResponse: externalApiResponse.data 
-        };
-      } catch (apiError) {
-        console.error('External API error:', apiError);
-        // If external API fails, we still have data saved to JSON Server
-        return { 
-          success: true, 
-          message: 'Employee registered successfully (saved to JSON Server only)',
-          localData: jsonServerResponse.data,
-          externalApiFailed: true
-        };
-      }
-    } catch (jsonServerError) {
-      console.error('JSON Server error:', jsonServerError);
-      
-      // If JSON Server fails, try the external API as a backup
-      try {
-        const externalApiResponse = await axios.post(EXTERNAL_API_URL, formattedData);
-        console.log('External API Response:', externalApiResponse.data);
-        
-        return { 
-          success: true, 
-          message: 'Employee registered with external API only (JSON Server unavailable)',
-          apiResponse: externalApiResponse.data,
-          jsonServerFailed: true 
-        };
-      } catch (apiError) {
-        console.error('External API error:', apiError);
-        throw new Error('Failed to save employee data to both storage systems');
-      }
+      return { 
+        success: true, 
+        message: 'Employee registered successfully',
+        apiResponse: response.data 
+      };
+    } catch (apiError) {
+      console.error('API error:', apiError);
+      throw new Error(apiError.response?.data?.message || 'Failed to register employee. Please try again.');
     }
   } catch (error) {
     throw new Error(error.message || 'Failed to submit form');
   }
 };
+

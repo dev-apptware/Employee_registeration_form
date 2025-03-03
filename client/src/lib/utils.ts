@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge";
  * @param {...string} inputs - Class names or conditional class names
  * @returns {string} - Merged class string
  */
-export function cn(...inputs) {
+export function cn(...inputs: (string | undefined | null | false)[]) {
   return twMerge(clsx(inputs));
 }
 
@@ -18,7 +18,7 @@ export function cn(...inputs) {
  * @param {Date} date - The date to format
  * @returns {string} - Formatted date string
  */
-export function formatDate(date) {
+export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "";
   return new Date(date).toLocaleDateString();
 }
@@ -30,7 +30,7 @@ export function formatDate(date) {
  * @param {number} length - Maximum length
  * @returns {string} - Truncated string
  */
-export function truncateString(str, length = 50) {
+export function truncateString(str: string | null | undefined, length: number = 50): string {
   if (!str) return "";
   if (str.length <= length) return str;
   return str.slice(0, length) + "...";

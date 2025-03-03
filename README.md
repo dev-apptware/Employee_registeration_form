@@ -49,7 +49,7 @@ A React-based employee registration form application that allows organizations t
 
 1. Start both the frontend and JSON Server simultaneously:
    ```bash
-   npm run dev:all
+   npm run dev
    ```
 
    This will start:
@@ -59,7 +59,7 @@ A React-based employee registration form application that allows organizations t
 2. Alternatively, you can run them separately:
    ```bash
    # Start just the frontend
-   npm run dev
+   npm run dev:frontend
 
    # Start just the JSON Server
    npm run server

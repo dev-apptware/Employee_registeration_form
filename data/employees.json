@@ -3,16 +3,8 @@
     {
       "id": 1,
       "name": "Harish",
-      "contactNumber": "9999999999",
-      "officeEmail": "admin@apptware.com",
-      "personalEmail": "admin@example.com",
       "employeeId": 1,
-      "dateOfBirth": "01-01-1990",
-      "dateOfJoining": "01-01-2023",
-      "totalYrExp": 10,
-      "primarySkills": ["JAVA", "REACT"],
-      "secondarySkills": ["NODE.JS"],
-      "designation": "", 
+      "designation": "",
       "department": "CEO",
       "reportingManager": null
     }

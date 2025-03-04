@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Get the external API base URL from environment variables or use the default
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://hrms-au5y.onrender.com/employee';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://hrms-au5y.onrender.com';
 const API_ADD_URL = `${API_BASE_URL}/add`;
-const API_LIST_URL = `${API_BASE_URL}/listEmployees`;
+const API_LIST_URL = `${API_BASE_URL}/employee/listEmployees`;
 
 // Format date to DD-MM-YYYY format required by the API
 const formatDateForAPI = (date) => {
@@ -52,17 +52,17 @@ export const submitEmployeeData = async (data) => {
       department: data.department,
       reportingManager: data.reportingManager ? Number(data.reportingManager) : null
     };
-    
+
     console.log('Sending data to API:', formattedData);
-    
+
     try {
       const response = await axios.post(API_ADD_URL, formattedData);
       console.log('API Response:', response.data);
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         message: 'Employee registered successfully',
-        apiResponse: response.data 
+        apiResponse: response.data
       };
     } catch (apiError) {
       console.error('API error:', apiError);

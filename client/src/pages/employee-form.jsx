@@ -119,6 +119,16 @@ const SKILLS_OPTIONS = [
   "INVENTORY MANAGEMENT",
   "BUSINESS PROCESS IMPROVEMENT",
   "CHANGE MANAGEMENT",
+
+  // Delivery Department
+  "STRATEGIC THINKING",
+  "CUSTOMER FOCUS",
+  "DATA-DRIVEN DECISION MAKING",
+  "TECHNICAL ACUMEN",
+  "LEADERSHIP",
+  "COMMUNICATION SKILLS",
+  "PROBLEM-SOLVING",
+  "AGILITY AND FLEXIBILITY",
 ];
 
 const DEPARTMENTS = [
@@ -129,6 +139,7 @@ const DEPARTMENTS = [
   "MARKETING",
   "OPERATIONS",
   "TECHNOLOGY",
+  "DELIVERY",
 ];
 
 // Map departments to skill categories that are relevant
@@ -139,7 +150,8 @@ const DEPARTMENT_TO_SKILL_CATEGORIES = {
   'SALES': ['SALES'],
   'HR': ['HR'],
   'ACCOUNTS': ['ACCOUNTS'],
-  'OPERATIONS': ['OPERATIONS']
+  'OPERATIONS': ['OPERATIONS'],
+  'DELIVERY': ['DELIVERY'] // Use the DELIVERY skill category for the DELIVERY department
 };
 
 export default function EmployeeForm() {

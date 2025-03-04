@@ -13,6 +13,7 @@ export const SKILL_CATEGORIES = {
   HR: { color: "bg-pink-100 border-pink-300 text-pink-800", icon: "👥" },
   ACCOUNTS: { color: "bg-emerald-100 border-emerald-300 text-emerald-800", icon: "📈" },
   OPERATIONS: { color: "bg-indigo-100 border-indigo-300 text-indigo-800", icon: "⚙️" },
+  DELIVERY: { color: "bg-sky-100 border-sky-300 text-sky-800", icon: "🚀" },
 };
 
 // Map skills to categories
@@ -76,6 +77,14 @@ export const getCategoryForSkill = (skill: string) => {
       lowerSkill.includes("logistics") || lowerSkill.includes("procurement") || 
       lowerSkill.includes("inventory") || lowerSkill.includes("change management")) {
     return "OPERATIONS";
+  }
+  
+  // Delivery skills
+  if (lowerSkill.includes("strategic thinking") || lowerSkill.includes("customer focus") || 
+      lowerSkill.includes("data-driven decision making") || lowerSkill.includes("technical acumen") || 
+      lowerSkill.includes("leadership") || lowerSkill.includes("communication skills") || 
+      lowerSkill.includes("problem-solving") || lowerSkill.includes("agility") || lowerSkill.includes("flexibility")) {
+    return "DELIVERY";
   }
   
   return "TECH"; // Default category

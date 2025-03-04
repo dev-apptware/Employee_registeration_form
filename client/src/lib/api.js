@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Get the external API base URL from environment variables or use the default
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://hrms-au5y.onrender.com';
-const API_ADD_URL = `${API_BASE_URL}/add`;
+const API_ADD_URL = `${API_BASE_URL}/employee/add`;
 const API_LIST_URL = `${API_BASE_URL}/employee/listEmployees`;
 
 // Format date to DD-MM-YYYY format required by the API

@@ -50,7 +50,7 @@ export const submitEmployeeData = async (data) => {
       secondarySkills: Array.isArray(data.secondarySkills) ? data.secondarySkills : [],
       designation: data.designation,
       department: data.department,
-      reportingManager: data.reportingManager ? Number(data.reportingManager) : null
+      reportingManager: data.reportingManager || null // Using the id directly from the dropdown
     };
 
     console.log('Sending data to API:', formattedData);

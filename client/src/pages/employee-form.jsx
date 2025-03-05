@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { SkillSelector, SKILL_CATEGORIES } from "@/components/ui/skill-selector";
+import { ManagerSelector } from "@/components/ui/manager-selector";
 import { submitEmployeeData, getAllEmployees } from "@/lib/api";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -157,14 +158,24 @@ const DEPARTMENT_TO_SKILL_CATEGORIES = {
 export default function EmployeeForm() {
   const { toast } = useToast();
   const [existingEmployees, setExistingEmployees] = useState([]);
-  const [manualManagerId, setManualManagerId] = useState(true);
   const [, setLocation] = useLocation();
   const [currentDepartment, setCurrentDepartment] = useState('');
 
   const form = useForm({
     defaultValues: {
+      name: "",
+      contactNumber: "",
+      officeEmail: "",
+      personalEmail: "",
+      employeeId: "",
+      totalYrExp: "",
+      designation: "",
+      department: "",
       primarySkills: [],
       secondarySkills: [],
+      reportingManager: "",
+      dateOfJoining: null,
+      dateOfBirth: null,
     },
     // Add default validation rules
     resolver: async (values) => {
@@ -306,10 +317,52 @@ export default function EmployeeForm() {
     }
   };
 
+  // Helper function to validate all required fields
+  const validateRequiredFields = (data) => {
+    const errors = {};
+    
+    // Check for required fields
+    const requiredFields = [
+      { field: 'name', message: 'Full name is required' },
+      { field: 'contactNumber', message: 'Contact number is required' },
+      { field: 'officeEmail', message: 'Office email is required' },
+      { field: 'personalEmail', message: 'Personal email is required' },
+      { field: 'dateOfJoining', message: 'Date of joining is required' },
+      { field: 'dateOfBirth', message: 'Date of birth is required' },
+      { field: 'employeeId', message: 'Employee ID is required' },
+      { field: 'totalYrExp', message: 'Years of experience is required' },
+      { field: 'designation', message: 'Designation is required' },
+      { field: 'department', message: 'Department is required' },
+      { field: 'reportingManager', message: 'Reporting manager is required' }
+    ];
+
+    requiredFields.forEach(({ field, message }) => {
+      if (!data[field]) {
+        errors[field] = message;
+      }
+    });
+    
+    // Check primary skills (required)
+    if (!data.primarySkills || data.primarySkills.length === 0) {
+      errors.primarySkills = 'At least one primary skill is required';
+    }
+    
+    // Secondary skills are optional
+    
+    return errors;
+  };
+
   const onSubmit = async (data) => {
     try {
       console.log(data);
+      
+      // Check for required fields first
+      const requiredFieldErrors = validateRequiredFields(data);
+      if (Object.keys(requiredFieldErrors).length > 0) {
+        throw new Error(JSON.stringify(requiredFieldErrors));
+      }
 
+      // Then perform other validations
       validateForm(data);
       const result = await submitEmployeeData(data);
 
@@ -410,6 +463,13 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="officeEmail"
+                  rules={{
+                    required: "Office email is required",
+                    pattern: {
+                      value: /.+@apptware\.com$/,
+                      message: "Office email must use the @apptware.com domain"
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Office Email</FormLabel>
@@ -428,6 +488,13 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="personalEmail"
+                  rules={{
+                    required: "Personal email is required",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                      message: "Invalid email address format"
+                    }
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Personal Email</FormLabel>
@@ -447,6 +514,9 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="dateOfJoining"
+                  rules={{
+                    required: "Date of joining is required"
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date of Joining</FormLabel>
@@ -471,6 +541,9 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="dateOfBirth"
+                  rules={{
+                    required: "Date of birth is required"
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Date of Birth</FormLabel>
@@ -595,6 +668,9 @@ export default function EmployeeForm() {
                 <FormField
                   control={form.control}
                   name="department"
+                  rules={{
+                    required: "Department is required"
+                  }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Department</FormLabel>
@@ -621,6 +697,12 @@ export default function EmployeeForm() {
                   <FormField
                     control={form.control}
                     name="primarySkills"
+                    rules={{
+                      required: "At least one primary skill is required",
+                      validate: (value) => {
+                        return (value && value.length > 0) || "At least one primary skill is required";
+                      }
+                    }}
                     render={({ field }) => (
                       <FormItem className="space-y-1">
                         <FormControl>
@@ -660,92 +742,27 @@ export default function EmployeeForm() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      type="button"
-                      variant={manualManagerId ? "default" : "outline"}
-                      onClick={() => setManualManagerId(true)}
-                    >
-                      Enter Manager ID
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={!manualManagerId ? "default" : "outline"}
-                      onClick={() => setManualManagerId(false)}
-                    >
-                      Select Manager
-                    </Button>
-                  </div>
-
-                  {manualManagerId ? (
-                    <FormField
-                      control={form.control}
-                      name="reportingManager"
-                      rules={{
-                        validate: (value) => {
-                          if (value) {
-                            const numValue = parseInt(value);
-                            if (isNaN(numValue) || numValue <= 0 || !Number.isInteger(numValue)) {
-                              return "Manager ID must be a positive integer";
-                            }
-                          }
-                          return true;
-                        }
-                      }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Reporting Manager ID</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="1"
-                              step="1"
-                              {...field}
-                              onChange={(e) => {
-                                const value = parseInt(e.target.value, 10);
-                                if (value > 0 || isNaN(value)) {
-                                  field.onChange(value);
-                                } else {
-                                  // If negative or zero, set to empty or 1
-                                  field.onChange("");
-                                }
-                              }}
-                              placeholder="Enter manager ID"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ) : (
-                    <FormField
-                      control={form.control}
-                      name="reportingManager"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Select Reporting Manager</FormLabel>
-                          <Select
-                            onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                            value={field.value?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a manager" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {existingEmployees.map((employee) => (
-                                <SelectItem key={employee.employeeId} value={employee.employeeId.toString()}>
-                                  {employee.name} - {employee.designation} ({employee.department})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
+                  <FormField
+                    control={form.control}
+                    name="reportingManager"
+                    rules={{
+                      required: "Reporting manager is required"
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Reporting Manager</FormLabel>
+                        <FormControl>
+                          <ManagerSelector
+                            employees={existingEmployees}
+                            selectedManagerId={field.value}
+                            onChange={field.onChange}
+                            placeholder="Search and select a reporting manager..."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 

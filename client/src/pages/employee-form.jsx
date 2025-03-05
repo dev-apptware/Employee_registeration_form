@@ -108,7 +108,7 @@ const SKILLS_OPTIONS = [
   "NLP",
   "EDA (EXPLORATORY DATA ANALYSIS)",
   
-  // Project Delivery Department
+  // Delivery Department
   "AGILE (SCRUM, KANBAN)",
   "WATERFALL",
   "JIRA",
@@ -211,7 +211,7 @@ const DEPARTMENTS = [
   "BACKEND",
   "DEVOPS",
   "ARTIFICIAL INTELLIGENCE",
-  "PROJECT DELIVERY",
+  "DELIVERY",
 ];
 
 // Map departments to skill categories that are relevant
@@ -226,7 +226,7 @@ const DEPARTMENT_TO_SKILL_CATEGORIES = {
   'BACKEND': ['BACKEND'], // Use the BACKEND skill category for the BACKEND department
   'DEVOPS': ['DEVOPS'], // Use the DEVOPS skill category for the DEVOPS department
   'ARTIFICIAL INTELLIGENCE': ['AI'], // Use the AI skill category for the ARTIFICIAL INTELLIGENCE department
-  'PROJECT DELIVERY': ['PROJECT_DELIVERY'] // Use the PROJECT_DELIVERY skill category for the PROJECT DELIVERY department
+  'DELIVERY': ['PROJECT_DELIVERY'] // Use the PROJECT_DELIVERY skill category for the DELIVERY department
 };
 
 // Map frontend technical departments to TECHNOLOGY for backend submission
@@ -329,7 +329,6 @@ export default function EmployeeForm() {
     }
   }, [department]);
 
-  // Determine relevant skill categories based on department
   const relevantSkillCategories = useMemo(() => {
     // If no department is selected yet, show all categories
     if (!currentDepartment) return Object.keys(SKILL_CATEGORIES);

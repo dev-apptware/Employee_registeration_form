@@ -6,22 +6,85 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define skill categories and their respective colors
 export const SKILL_CATEGORIES = {
-  TECH: { color: "bg-blue-100 border-blue-300 text-blue-800", icon: "💻" },
   DESIGN: { color: "bg-purple-100 border-purple-300 text-purple-800", icon: "🎨" },
   MARKETING: { color: "bg-green-100 border-green-300 text-green-800", icon: "📊" },
   SALES: { color: "bg-amber-100 border-amber-300 text-amber-800", icon: "💰" },
   HR: { color: "bg-pink-100 border-pink-300 text-pink-800", icon: "👥" },
   ACCOUNTS: { color: "bg-emerald-100 border-emerald-300 text-emerald-800", icon: "📈" },
   OPERATIONS: { color: "bg-indigo-100 border-indigo-300 text-indigo-800", icon: "⚙️" },
-  DELIVERY: { color: "bg-sky-100 border-sky-300 text-sky-800", icon: "🚀" },
+  FRONTEND: { color: "bg-orange-100 border-orange-300 text-orange-800", icon: "🌐" },
+  BACKEND: { color: "bg-teal-100 border-teal-300 text-teal-800", icon: "🖥️" },
+  DEVOPS: { color: "bg-yellow-100 border-yellow-300 text-yellow-800", icon: "🛠️" },
+  AI: { color: "bg-violet-100 border-violet-300 text-violet-800", icon: "🤖" },
+  PROJECT_DELIVERY: { color: "bg-rose-100 border-rose-300 text-rose-800", icon: "📆" },
 };
 
 // Map skills to categories
 export const getCategoryForSkill = (skill: string) => {
   const lowerSkill = skill.toLowerCase();
   
+  // Frontend skills
+  if (lowerSkill.includes("react") || lowerSkill.includes("javascript") || lowerSkill.includes("vue") || lowerSkill.includes("react native") || 
+      lowerSkill.includes("flutter") || lowerSkill.includes("android native") || 
+      lowerSkill.includes("angular") || lowerSkill.includes("typescript") || 
+      lowerSkill.includes("html/css") || lowerSkill.includes("tailwind") || 
+      lowerSkill.includes("next.js") || lowerSkill.includes("redux") || 
+      lowerSkill.includes("scss") || lowerSkill.includes("less") || 
+      lowerSkill.includes("d3js")) {
+    return "FRONTEND";
+  }
+  
+  // Backend skills
+  if (lowerSkill.includes("java") || lowerSkill.includes("python") || lowerSkill.includes("nodejs") || 
+      lowerSkill.includes("expressjs") || lowerSkill.includes("mongodb") || 
+      lowerSkill.includes("mysql") || lowerSkill.includes("postgresql") || 
+      lowerSkill.includes("web services") || lowerSkill.includes("microservices") || 
+      lowerSkill.includes("design patterns") || lowerSkill.includes("oops") || 
+      lowerSkill.includes("serverless") || lowerSkill.includes("spring") || 
+      lowerSkill.includes("jdbc") || lowerSkill.includes("maven") || 
+      lowerSkill.includes("junit") || lowerSkill.includes("mockito") || 
+      lowerSkill.includes("django") || lowerSkill.includes("flask") || 
+      lowerSkill.includes("fastapi") || lowerSkill.includes("web sockets") || 
+      lowerSkill.includes("elasticsearch") || lowerSkill.includes("etl") || 
+      lowerSkill.includes("redis") || lowerSkill.includes("rabbitmq") || 
+      lowerSkill.includes("graphdb") || lowerSkill.includes("neo4j") || 
+      lowerSkill.includes("gradle")) {
+    return "BACKEND";
+  }
+  
+  // DevOps skills
+  if (lowerSkill.includes("aws") || lowerSkill.includes("linux") || lowerSkill.includes("git") || 
+      lowerSkill.includes("terraform") || lowerSkill.includes("ansible") || 
+      lowerSkill.includes("docker") || lowerSkill.includes("kubernetes") || 
+      lowerSkill.includes("jenkins") || lowerSkill.includes("github actions") || 
+      lowerSkill.includes("prometheus") || lowerSkill.includes("grafana") || 
+      lowerSkill.includes("azure") || lowerSkill.includes("gcp")) {
+    return "DEVOPS";
+  }
+  
+  // AI skills
+  if (lowerSkill.includes("machine learning") || lowerSkill.includes("deep learning") || 
+      lowerSkill.includes("generative ai") || lowerSkill.includes("rag") || 
+      lowerSkill.includes("vectordb") || lowerSkill.includes("llm") || 
+      lowerSkill.includes("knowledge graphs") || lowerSkill.includes("ai agents") || 
+      lowerSkill.includes("computer vision") || lowerSkill.includes("nlp") || 
+      lowerSkill.includes("eda") || lowerSkill.includes("exploratory data analysis") || 
+      lowerSkill.includes("artificial intelligence")) {
+    return "AI";
+  }
+  
+  // Project Delivery skills
+  if (lowerSkill.includes("agile") || lowerSkill.includes("scrum") || 
+      lowerSkill.includes("kanban") || lowerSkill.includes("waterfall") || 
+      lowerSkill.includes("jira") || lowerSkill.includes("linear") || 
+      lowerSkill.includes("ms project") || lowerSkill.includes("risk management") || 
+      lowerSkill.includes("reporting") || lowerSkill.includes("documentation") || 
+      lowerSkill.includes("project delivery")) {
+    return "PROJECT_DELIVERY";
+  }
+  
   // Technical skills
-  if (lowerSkill.includes("java") || lowerSkill.includes("python") || lowerSkill.includes("react") || 
+  if (lowerSkill.includes("java") || lowerSkill.includes("python") || 
       lowerSkill.includes("node.js") || lowerSkill.includes("c++") || lowerSkill.includes("c#") || 
       lowerSkill.includes("sql") || lowerSkill.includes("no sql") || lowerSkill.includes("ruby") ||
       lowerSkill.includes("swift") || lowerSkill.includes("kotlin") || lowerSkill.includes("cyber") ||
@@ -38,6 +101,12 @@ export const getCategoryForSkill = (skill: string) => {
       lowerSkill.includes("figma") || lowerSkill.includes("animation") || 
       lowerSkill.includes("digital illustration") || lowerSkill.includes("ui/ux") ||
       lowerSkill.includes("graphic design") || lowerSkill.includes("video editing") ||
+      lowerSkill.includes("interaction design") || lowerSkill.includes("wireframing") ||
+      lowerSkill.includes("prototyping") || lowerSkill.includes("design systems") ||
+      lowerSkill.includes("visual design") || lowerSkill.includes("typography") ||
+      lowerSkill.includes("accessibility") || lowerSkill.includes("motion ui") ||
+      lowerSkill.includes("branding") || lowerSkill.includes("frontend handoff") ||
+      lowerSkill.includes("lottie") || lowerSkill.includes("product research") ||
       lowerSkill.includes("design") && !lowerSkill.includes("data")) {
     return "DESIGN";
   }
@@ -79,15 +148,8 @@ export const getCategoryForSkill = (skill: string) => {
     return "OPERATIONS";
   }
   
-  // Delivery skills
-  if (lowerSkill.includes("strategic thinking") || lowerSkill.includes("customer focus") || 
-      lowerSkill.includes("data-driven decision making") || lowerSkill.includes("technical acumen") || 
-      lowerSkill.includes("leadership") || lowerSkill.includes("communication skills") || 
-      lowerSkill.includes("problem-solving") || lowerSkill.includes("agility") || lowerSkill.includes("flexibility")) {
-    return "DELIVERY";
-  }
   
-  return "TECH"; // Default category
+  return "FRONTEND"; // Default category changed from TECH to FRONTEND
 };
 
 interface SkillSelectorProps {

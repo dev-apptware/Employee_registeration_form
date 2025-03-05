@@ -30,28 +30,92 @@ import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 
 const SKILLS_OPTIONS = [
-  // Technology Department
-  "JAVA",
-  "PYTHON",
-  "JAVASCRIPT",
+
+  
+  // Frontend Department
   "REACT",
-  "NODE.JS",
-  "DEVOPS",
+  "JAVASCRIPT",
+  "VUE",
+  "REACT NATIVE",
+  "FLUTTER",
+  "ANDROID NATIVE",
+  "ANGULAR",
+  "TYPESCRIPT",
+  "HTML/CSS",
+  "TAILWIND",
+  "NEXT.JS",
+  "REDUX",
+  "SCSS",
+  "LESS",
+  "D3JS",
+
+  
+  // Backend Department
+  "PYTHON",
+  "NODEJS",
+  "EXPRESSJS",
+  "MONGODB",
+  "MYSQL",
+  "POSTGRESQL",
+  "JAVA",
+  "WEB SERVICES (REST, SOAP)",
+  "MICROSERVICES",
+  "DESIGN PATTERNS",
+  "OOPS",
+  "SERVERLESS ARCHITECTURE",
+  "SPRING FRAMEWORK",
+  "SPRING BOOT",
+  "JDBC",
+  "MAVEN",
+  "JUNIT",
+  "MOCKITO",
+  "DJANGO",
+  "FLASK",
+  "FASTAPI",
+  "WEB SOCKETS",
+  "ELASTICSEARCH",
+  "ETL",
+  "REDIS",
+  "RABBITMQ",
+  "GRAPHDB (NEO4J)",
+  "GRADLE",
+  
+  // DevOps Department
+  "LINUX",
+  "GIT",
   "AWS",
+  "TERRAFORM",
+  "ANSIBLE",
   "DOCKER",
-  "C++",
-  "C#",
-  "SQL",
-  "NO SQL",
-  "RUBY",
-  "SWIFT",
-  "KOTLIN",
-  "DATA SCIENCE",
+  "KUBERNETES",
+  "JENKINS",
+  "GITHUB ACTIONS",
+  "PROMETHEUS",
+  "GRAFANA",
+  "AZURE",
+  "GCP",
+  
+  // Artificial Intelligence Department
   "MACHINE LEARNING",
-  "ARTIFICIAL INTELLIGENCE",
-  "CYBER SECURITY",
-  "NETWORKING",
-  "DATABASE ADMINISTRATION",
+  "DEEP LEARNING",
+  "GENERATIVE AI",
+  "RAG",
+  "VECTORDB",
+  "LLM",
+  "KNOWLEDGE GRAPHS",
+  "AI AGENTS",
+  "COMPUTER VISION",
+  "NLP",
+  "EDA (EXPLORATORY DATA ANALYSIS)",
+  
+  // Project Delivery Department
+  "AGILE (SCRUM, KANBAN)",
+  "WATERFALL",
+  "JIRA",
+  "LINEAR",
+  "MS PROJECT",
+  "RISK MANAGEMENT",
+  "REPORTING & DOCUMENTATION",
 
   // Design Department
   "PHOTOSHOP",
@@ -64,6 +128,18 @@ const SKILLS_OPTIONS = [
   "DIGITAL ILLUSTRATION",
   "ANIMATION",
   "VIDEO EDITING",
+  "INTERACTION DESIGN",
+  "WIREFRAMING",
+  "PROTOTYPING",
+  "DESIGN SYSTEMS",
+  "VISUAL DESIGN",
+  "TYPOGRAPHY",
+  "ACCESSIBILITY",
+  "MOTION UI",
+  "BRANDING",
+  "FRONTEND HANDOFF",
+  "LOTTIE",
+  "PRODUCT RESEARCH",
 
   // Marketing Department
   "DIGITAL MARKETING",
@@ -121,15 +197,7 @@ const SKILLS_OPTIONS = [
   "BUSINESS PROCESS IMPROVEMENT",
   "CHANGE MANAGEMENT",
 
-  // Delivery Department
-  "STRATEGIC THINKING",
-  "CUSTOMER FOCUS",
-  "DATA-DRIVEN DECISION MAKING",
-  "TECHNICAL ACUMEN",
-  "LEADERSHIP",
-  "COMMUNICATION SKILLS",
-  "PROBLEM-SOLVING",
-  "AGILITY AND FLEXIBILITY",
+
 ];
 
 const DEPARTMENTS = [
@@ -139,20 +207,34 @@ const DEPARTMENTS = [
   "ACCOUNTS",
   "MARKETING",
   "OPERATIONS",
-  "TECHNOLOGY",
-  "DELIVERY",
+  "FRONTEND",
+  "BACKEND",
+  "DEVOPS",
+  "ARTIFICIAL INTELLIGENCE",
+  "PROJECT DELIVERY",
 ];
 
 // Map departments to skill categories that are relevant
 const DEPARTMENT_TO_SKILL_CATEGORIES = {
-  'TECHNOLOGY': ['TECH'],
   'DESIGN': ['DESIGN'],
   'MARKETING': ['MARKETING'],
   'SALES': ['SALES'],
   'HR': ['HR'],
   'ACCOUNTS': ['ACCOUNTS'],
   'OPERATIONS': ['OPERATIONS'],
-  'DELIVERY': ['DELIVERY'] // Use the DELIVERY skill category for the DELIVERY department
+  'FRONTEND': ['FRONTEND'], // Use the FRONTEND skill category for the FRONTEND department
+  'BACKEND': ['BACKEND'], // Use the BACKEND skill category for the BACKEND department
+  'DEVOPS': ['DEVOPS'], // Use the DEVOPS skill category for the DEVOPS department
+  'ARTIFICIAL INTELLIGENCE': ['AI'], // Use the AI skill category for the ARTIFICIAL INTELLIGENCE department
+  'PROJECT DELIVERY': ['PROJECT_DELIVERY'] // Use the PROJECT_DELIVERY skill category for the PROJECT DELIVERY department
+};
+
+// Map frontend technical departments to TECHNOLOGY for backend submission
+const DEPARTMENT_TO_BACKEND_VALUE = {
+  'FRONTEND': 'TECHNOLOGY',
+  'BACKEND': 'TECHNOLOGY',
+  'DEVOPS': 'TECHNOLOGY',
+  'ARTIFICIAL INTELLIGENCE': 'TECHNOLOGY'
 };
 
 export default function EmployeeForm() {
@@ -354,17 +436,26 @@ export default function EmployeeForm() {
 
   const onSubmit = async (data) => {
     try {
-      console.log(data);
+      // Make a copy of the form data to avoid mutating the original data
+      const submissionData = { ...data };
+      
+      // Map frontend technical departments to TECHNOLOGY for backend submission
+      if (DEPARTMENT_TO_BACKEND_VALUE[submissionData.department]) {
+        submissionData.department = DEPARTMENT_TO_BACKEND_VALUE[submissionData.department];
+      }
+      
+      console.log('Original department:', data.department);
+      console.log('Submission department:', submissionData.department);
       
       // Check for required fields first
-      const requiredFieldErrors = validateRequiredFields(data);
+      const requiredFieldErrors = validateRequiredFields(submissionData);
       if (Object.keys(requiredFieldErrors).length > 0) {
         throw new Error(JSON.stringify(requiredFieldErrors));
       }
 
       // Then perform other validations
-      validateForm(data);
-      const result = await submitEmployeeData(data);
+      validateForm(submissionData);
+      const result = await submitEmployeeData(submissionData);
 
       if (result.success) {
         toast({

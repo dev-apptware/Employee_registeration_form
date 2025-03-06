@@ -287,12 +287,20 @@ export default function EmployeeForm() {
         };
       }
 
-      // Validate years of experience (positive number)
-      if (values.totalYrExp && parseFloat(values.totalYrExp) < 0) {
-        errors.totalYrExp = {
-          type: 'min',
-          message: 'Years of experience cannot be negative'
-        };
+      // Validate years of experience (positive number between 0 and 80)
+      if (values.totalYrExp) {
+        const expValue = parseFloat(values.totalYrExp);
+        if (expValue < 0) {
+          errors.totalYrExp = {
+            type: 'min',
+            message: 'Years of experience cannot be negative'
+          };
+        } else if (expValue > 80) {
+          errors.totalYrExp = {
+            type: 'max',
+            message: 'Years of experience cannot exceed 80'
+          };
+        }
       }
 
       // Validate designation (only letters, spaces, and some special characters)
@@ -381,6 +389,9 @@ export default function EmployeeForm() {
     // Validate years of experience
     if (parseFloat(data.totalYrExp) < 0) {
       errors.totalYrExp = 'Years of experience cannot be negative';
+    }
+    if (parseFloat(data.totalYrExp) > 80) {
+      errors.totalYrExp = 'Years of experience cannot exceed 80';
     }
 
     // Validate designation
@@ -698,6 +709,9 @@ export default function EmployeeForm() {
                       if (isNaN(numValue) || numValue < 0) {
                         return "Years of experience cannot be negative";
                       }
+                      if (numValue > 80) {
+                        return "Years of experience cannot exceed 80";
+                      }
                       return true;
                     }
                   }}
@@ -708,11 +722,12 @@ export default function EmployeeForm() {
                         <Input
                           type="number"
                           min="0"
-                          step="0.5"
+                          max="80"
+                          step="0.1"
                           {...field}
                           onChange={(e) => {
                             const value = parseFloat(e.target.value);
-                            if (value >= 0 || isNaN(value)) {
+                            if ((value >= 0 && value <= 80) || isNaN(value)) {
                               field.onChange(value);
                             }
                           }}

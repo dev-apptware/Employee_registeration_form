@@ -36,8 +36,20 @@ export function ManagerSelector({
   placeholder = "Select a reporting manager...",
 }: ManagerSelectorProps) {
   const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
   // Handle both string and number IDs
   const selectedManager = employees.find((employee) => employee.id == selectedManagerId); // Using == for loose equality check
+  
+  // Filter employees based on search query
+  const filteredEmployees = React.useMemo(() => {
+    if (!searchQuery) return employees;
+    
+    return employees.filter((employee) => 
+      employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      employee.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      employee.department.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [employees, searchQuery]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -63,10 +75,14 @@ export function ManagerSelector({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search by name..." />
+          <CommandInput 
+            placeholder="Search by name..." 
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+          />
           <CommandEmpty>No managers found.</CommandEmpty>
-          <CommandGroup>
-            {employees.map((employee) => (
+          <CommandGroup className="max-h-[320px] overflow-y-auto">
+            {(searchQuery ? filteredEmployees : employees.slice(0, 8)).map((employee) => (
               <CommandItem
                 key={employee.id}
                 onSelect={() => {
@@ -89,6 +105,11 @@ export function ManagerSelector({
                 </div>
               </CommandItem>
             ))}
+            {!searchQuery && employees.length > 8 && (
+              <div className="py-2 px-3 text-sm text-muted-foreground border-t">
+                {employees.length - 8} more managers available. Use search to find them.
+              </div>
+            )}
           </CommandGroup>
         </Command>
       </PopoverContent>

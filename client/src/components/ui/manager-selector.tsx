@@ -44,11 +44,16 @@ export function ManagerSelector({
   const filteredEmployees = React.useMemo(() => {
     if (!searchQuery) return employees;
     
-    return employees.filter((employee) => 
-      employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      employee.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      employee.department.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const query = searchQuery.toLowerCase();
+    return employees.filter((employee) => {
+      const name = employee.name ? employee.name.toLowerCase() : "";
+      const designation = employee.designation ? employee.designation.toLowerCase() : "";
+      const department = employee.department ? employee.department.toLowerCase() : "";
+      
+      return name.includes(query) || 
+             designation.includes(query) || 
+             department.includes(query);
+    });
   }, [employees, searchQuery]);
 
   return (

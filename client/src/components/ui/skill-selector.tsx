@@ -17,6 +17,7 @@ export const SKILL_CATEGORIES = {
   DEVOPS: { color: "bg-yellow-100 border-yellow-300 text-yellow-800", icon: "🛠️" },
   AI: { color: "bg-violet-100 border-violet-300 text-violet-800", icon: "🤖" },
   PROJECT_DELIVERY: { color: "bg-rose-100 border-rose-300 text-rose-800", icon: "📆" },
+  QA: { color: "bg-sky-100 border-sky-300 text-sky-800", icon: "🧪" },
 };
 
 // Map skills to categories
@@ -73,13 +74,22 @@ export const getCategoryForSkill = (skill: string) => {
     return "AI";
   }
   
+  // QA skills
+  if (lowerSkill.includes("selenium") || lowerSkill.includes("appium") || 
+      lowerSkill.includes("junit") || lowerSkill.includes("testng") || 
+      lowerSkill.includes("postman") || lowerSkill.includes("jmeter") || 
+      lowerSkill.includes("testrail") || lowerSkill.includes("jira") || 
+      lowerSkill.includes("testing") || lowerSkill.includes("qa") || 
+      lowerSkill.includes("quality assurance") || lowerSkill.includes("test automation")) {
+    return "QA";
+  }
+  
   // Project Delivery skills
   if (lowerSkill.includes("agile") || lowerSkill.includes("scrum") || 
       lowerSkill.includes("kanban") || lowerSkill.includes("waterfall") || 
-      lowerSkill.includes("jira") || lowerSkill.includes("linear") || 
-      lowerSkill.includes("ms project") || lowerSkill.includes("risk management") || 
-      lowerSkill.includes("reporting") || lowerSkill.includes("documentation") || 
-      lowerSkill.includes("project delivery")) {
+      lowerSkill.includes("linear") || lowerSkill.includes("ms project") || 
+      lowerSkill.includes("risk management") || lowerSkill.includes("reporting") || 
+      lowerSkill.includes("documentation") || lowerSkill.includes("project delivery")) {
     return "PROJECT_DELIVERY";
   }
   

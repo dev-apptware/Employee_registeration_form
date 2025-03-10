@@ -67,7 +67,6 @@ const SKILLS_OPTIONS = [
   "SPRING BOOT",
   "JDBC",
   "MAVEN",
-  "JUNIT",
   "MOCKITO",
   "DJANGO",
   "FLASK",
@@ -111,7 +110,6 @@ const SKILLS_OPTIONS = [
   // Delivery Department
   "AGILE (SCRUM, KANBAN)",
   "WATERFALL",
-  "JIRA",
   "LINEAR",
   "MS PROJECT",
   "RISK MANAGEMENT",
@@ -197,6 +195,15 @@ const SKILLS_OPTIONS = [
   "BUSINESS PROCESS IMPROVEMENT",
   "CHANGE MANAGEMENT",
 
+  // QA Department
+  "SELENIUM",
+  "APPIUM",
+  "JUNIT",
+  "TESTNG",
+  "POSTMAN",
+  "JMETER",
+  "TESTRAIL",
+  "JIRA",
 
 ];
 
@@ -212,6 +219,7 @@ const DEPARTMENTS = [
   "DEVOPS",
   "ARTIFICIAL INTELLIGENCE",
   "DELIVERY",
+  "QA",
 ];
 
 // Map departments to skill categories that are relevant
@@ -226,7 +234,8 @@ const DEPARTMENT_TO_SKILL_CATEGORIES = {
   'BACKEND': ['BACKEND'], // Use the BACKEND skill category for the BACKEND department
   'DEVOPS': ['DEVOPS'], // Use the DEVOPS skill category for the DEVOPS department
   'ARTIFICIAL INTELLIGENCE': ['AI'], // Use the AI skill category for the ARTIFICIAL INTELLIGENCE department
-  'DELIVERY': ['PROJECT_DELIVERY'] // Use the PROJECT_DELIVERY skill category for the DELIVERY department
+  'DELIVERY': ['PROJECT_DELIVERY'], // Use the PROJECT_DELIVERY skill category for the DELIVERY department
+  'QA': ['QA'] // Use the QA skill category for the QA department
 };
 
 // Map frontend technical departments to TECHNOLOGY for backend submission
@@ -234,7 +243,8 @@ const DEPARTMENT_TO_BACKEND_VALUE = {
   'FRONTEND': 'TECHNOLOGY',
   'BACKEND': 'TECHNOLOGY',
   'DEVOPS': 'TECHNOLOGY',
-  'ARTIFICIAL INTELLIGENCE': 'TECHNOLOGY'
+  'ARTIFICIAL INTELLIGENCE': 'TECHNOLOGY',
+  'QA': 'TECHNOLOGY'
 };
 
 export default function EmployeeForm() {
